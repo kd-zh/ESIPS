@@ -10,7 +10,7 @@ import pandas as pd
 sys.path.append('UIED-2.3')
 import detect_compo.ip_region_proposal as ip
 
-sys.path.append('LTS/code')
+sys.path.append('LTS')
 import ocr
 
 def bounding_box_area(bounding_box):
@@ -67,142 +67,38 @@ def lts_find_text(img_input_path, expected_bounds, text):
     return record
 
 # Keep track of the total time
-total_start_time = time.time()
 
-ANDROID_DEVICES = [
-    "Google Nexus 5",
-    "Google_Nexus_4",
-    "Google_Nexus_5X",
-    "Nexus_6_API_25",
-    "Nexus_6P_API_25",
-    "Nexus_S_API",
-    "Pixel_2_API_25",
-    "Pixel_2_XL_API_25",
-    "Pixel_3_API_25",
-    # "Pixel_3_XL_API_25",
-    "Pixel_3a_API_25",
-    "Pixel_3a_XL_API_25",
-    "Pixel_API_25",
-    "Pixel_XL_API_25"
-]
-
-ANDROID_APPS = [
-    "AcsNote_8.03",
-    "appunti_scritto_0.0.16",
-    "ASCII_Text_Symbols_1.0",
-    "Bangla_Note_2.3",
-    "Belt.io_1.0.1",
-    "Catch_Notes_5.2.11",
-    "Cek_Pulsa_Kuota_Semua_Operator_Seluler_1.2",
-    "Character_Story_Planner_2_1.91",
-    # "Clipboard_Contents_6.3.1.10",
-    # "Clipboard_Manager_4",
-    "ColorNote_Notepad_4.1.4",
-    "Cute_Text_Photo_Maker_and_Editor_1.0",
-    "Death_Note_3.1.5",
-    "Diario_Segreto_2.8",
-    # "Do_Note_2.1",
-    # "Document_Manager_1.9",
-    "Fancy_Text_Free_3.5",
-    "Fast_Notepad_1.4.4",
-    # "Floating_Stickies_2.1",
-    "GenialWriting_1.38.0811",
-    "GirlsDiary_1.9.5",
-    "GNotes_1.8.3.8",
-    "GO_Note_Widget_2.33",
-    # "Gratitude_journal_-_Private_Diary_3.0.7",
-    "Handrite_2.16",
-    "Handy_Journal_3.1.3",
-    "Hashnote_1.5.1",
-    # "iPhone_Notifications_Lite_6.4",
-    "JotterPad_12.10.3-pi",
-    # "Just_Note_1.1.1",
-    # "Khmer_Notes_1.0.3",
-    "Kingsoft_Clip_1.0.1_1.5.1",
-    "Mindjet_Maps_4.1",
-    "Mio_Diario_2.0.19",
-    "My_Diary_1.3.5",
-    # "My_Diary_6.1",
-    "MyBitCast_1.0.17.7621",
-    "Native_Clipboard_4.7.2",
-    # "NOTA_2.13",
-    # "NoteLedge_Lite_1.4.1",
-    "Notepad_(Blocco_note)_2.3.8",
-    # "Notepad_Plus_-_To-Do_&_Diary_1.2.0",
-    "notePad+_3.2.10",
-    # "Notes_(Beta)_1.07",
-    # "Notes_Plus_1.0.0",
-    "Notes_with_Password_0.1",
-    "Notif_0.7.1",
-    "NTW_Lite!_1.89b",
-    "OCR_Scanner_-_Text_to_Speech,_Voice_to_Text_1.4",
-    "Office_365_Admin_3.5.0.0",
-    "Office_Documents_Viewer_(Free)_1.26.19",
-    "OI_Notepad_1.3",
-    "Open_Note_1.2.2016",
-    "Open365_2.0.4",
-    # "Paper_Formats_v7",
-    # "PostStatut_5",
-    "Quick_Notes_1.0.2",
-    "Quick_Notes_1.3.0",
-    "Quickoffice_-_Google_Apps_6.5.1.12",
-    # "QuickThoughts_2.17.6",
-    "Quotes_Kingdom_1.0",
-    # "QwickNote_1.0",
-    # "Read_Out_1.0.0",
-    # "Safe_Notes_1.7",
-    "SC_2.0",
-    "Schedule_Deluxe_3.7.2",
-    # "Secret_Notes2_1.2",
-    "Secure_Notes_1.4.4",
-    # "Simple_Notepad_1.8.8",
-    "SimpleNotes_3.6.1",
-    "Speechnotes_1.69",
-    "Status_New_3.9",
-    "Sync_Notes_-_Notepad_5.0",
-    "Tamil_Keyboard_1.6.2",
-    # "Tasks_&_Notes_11.7.11",
-    # "Texpand_1.8.7",
-    "Text_Scanner_(Scan_Computer)_-_Voice_Read_Pro",
-    # "Text_Viewer_0.1.11",
-    # "TextWarrior_0.93",
-    # "To_Do_Reminder_2.68.50",
-    # "To-Do_List_Widget_2.0",
-    "Todoist_15.0.3",
-    "Turbo_Editor_2.4",
-    # "Txt_Reader_e_Writer_1.9",
-    "Unicode_-_Bijoy_Converter_2.0.0",
-    "Voice_to_Text_1.0.0",
-    "WeNote_1.89",
-    "WhatTheFont_1.1.1",
-    "Write_Urdu_On_Photo_1.0.5",
-    "Writeaday_2.7.0",
-    "Writeometer_1.9.1",
-    # "Writer_1.1",
-    # "Writer_Plus_1.46"
-]
 
 # Make a directory if it doesn't exist
 os.makedirs('ip', exist_ok=True)
 
+# List all sizes being tested
+# screen_sizes = [ "iPadPro.webp", 
+#                 "iPhone13Mini.PNG", 
+#                 "iPhone13Pro.webp", 
+#                 "iPhoneSE.PNG"]
 
-# Loop through all
-for application in ANDROID_APPS:
-    for device in ANDROID_DEVICES:
-        
-        folder = str(application)
-        input_path_img = f"../datAndroidDataset/{device}/{application}/Screenshot_0/Screenshot_0.png"
-        input_path_text = f"../datAndroidDataset/Google Nexus 5/{application}/Screenshot_0/text.txt"
-
+# Loop through folder names
+for i in range(1, 72):
+    if i > 30:
+        screen_sizes = ["iPhone13Mini.PNG",  
+                "iPhoneSE.PNG"]
+    else:
+        screen_sizes = [ "iPadPro.webp", 
+                "iPhone13Mini.PNG", 
+                "iPhone13Pro.webp", 
+                "iPhoneSE.PNG"]
+    for screen in screen_sizes:
+        t1 = time.time()
+        folder = str(i)
+        folder_path = os.path.join("..",'Dataset', folder)
+        input_path_img = os.path.join(folder_path, str(screen))
+        input_path_text = os.path.join(folder_path, 'text.txt')
+        print(input_path_img,input_path_text)
         # consider keeping track of time taken
         # consider also the # of items that need to be found
-        file_name = str(application) + '_' + str(device)
-        
-        # Read in the given image
-        org = cv2.imread(input_path_img)
-        height, width = org.shape[:2]
-
-        t1 = time.time()
+        file_name = str(i) + '_' + str(screen.split('.')[0])
+        print("AAAAAAA", input_path_text)
         try:
             with open(input_path_text, 'r') as file:
                 find_widget_text = file.read()
@@ -212,6 +108,11 @@ for application in ANDROID_APPS:
         except Exception as e:
             print(f"An error occurred: {e}")
             
+
+        # Read in the given image
+        org = cv2.imread(input_path_img)
+        
+        height, width = org.shape[:2]
 
         # 1) Detect widgets with UIED 2.3
         key_params = {'min-grad': 4, 'ffl-block': 5, 'min-ele-area': 500, 'merge-contained-ele': False,
@@ -225,6 +126,9 @@ for application in ANDROID_APPS:
             dict = json.load(file)
         components = dict["compos"]
 
+        # The first item is always the size of the screenshot (TODO - create a check for this?)
+        # popped = components.pop(0) 
+
         # 2) Detect text within those regions with LTS
         list_widgets_dicts=[]
 
@@ -235,8 +139,8 @@ for application in ANDROID_APPS:
             for item in components:
                 item['bounding_box'] = [item["column_min"], item["row_min"], item["width"],item["height"]]
                 record = lts_find_text(input_path_img, item['bounding_box'], text)
-                # print(record)
-                if record.get("label_detected") and record["label_detected"]:
+                    
+                if record["label_detected"]:
                     if item["width"] == width and item["height"] == height:
                         LTS_full.append({"bounding_box": record["match_bounds"], "text": text})
                     # The minimum x and y must be added due to the cropping
@@ -404,10 +308,10 @@ for application in ANDROID_APPS:
 
         with open('ip/' + file_name + ".txt", "w") as file:
             file.write(str(list_widgets_result))
-            
-        data = [device, application, total_time]
+        
+        data = [screen, folder, total_time]
         # Path to the Excel file
-        excel_filename = "resultsAndroidThesis.xlsx"
+        excel_filename = "resultsAppleThesis.xlsx"
         excel_path = os.path.join("..", excel_filename)
         # Check if the file exists
         if os.path.exists(excel_path):
@@ -415,13 +319,12 @@ for application in ANDROID_APPS:
             dfExisting = pd.read_excel(excel_path)
         else:
             # Create a new DataFrame if the file does not exist
-            dfExisting = pd.DataFrame(columns=['Device', 'Application', 'Total Time'])
+            dfExisting = pd.DataFrame(columns=['Screen', 'Folder', 'Total Time'])
         # Append the new data
         dfExisting.loc[len(dfExisting)] = data
         # Write the DataFrame back to Excel
         dfExisting.to_excel(excel_path, index=False)
         print(f"Excel file updated at {excel_path}")
-        
 
         # def test_match_text(bounds):
         #     algo = ocr.OCR_ALGO.CANNY_TESSERACT
@@ -438,6 +341,3 @@ for application in ANDROID_APPS:
         #         print(e)
         # match_bounds = record['match_bounds']
         # test_match_text(match_bounds)
-        
-total_end_time = time.time()
-print("Total time: " + str(total_end_time-total_start_time))
