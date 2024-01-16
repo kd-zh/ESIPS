@@ -28,4 +28,5 @@ The required modules to be installed are:
 * easyocr (1.7.1)
 
 Tesserocr may give an error if not installed with ``pip install --no-binary :all: tesserocr``.
+
 A lower version of the above packages may also be fine.
