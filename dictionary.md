@@ -2,6 +2,8 @@
 
 **AML** - Anti-money laundering
 
+**CIC** - change in circumstance e.g by address/tax status change to american tax residence
+
 **F1** - Frankie One
 
 **NPP** - New Payments Platform
@@ -11,6 +13,8 @@
 **PEP** - Politically Exposed Person
 
 **SCT** - Single Credit Transfer (Near real time payments)
+
+**TM** - transaction monitoring
 
 **UAT** - User Acceptance Testing (Tested in the real-world or beta testing)
 
@@ -48,7 +52,11 @@ data warehouse)
 
 **Athena** - SQL database that can be queried, read-only 
 
+**Cloudtrail (AWS)** – log, continuously monitor, and retain account activity related to actions across your AWS infrastructure, including actions taken through the AWS Management Console, AWS SDKs, command-line tools, and other AWS services. what is 
+
 **Glue (AWS)** - A serverless ETL tool (Can store metadata)
+
+**Listener** – Event-driven programming: In event-driven programming (common in graphical user interfaces and real-time systems), a listener is a procedure or function in a computer program that waits for an event to occur. The listener is programmed to react to an input or signal by calling the event's handler.
 
 **Splunk** - Software for searching, monitoring, and analyzing machine-generated data via a web-style interface
 
@@ -72,6 +80,3 @@ data warehouse)
 **Operating Rhythm** - Often called a business rhythm or a management rhythm, is a set of processes and meetings that a business establishes to monitor its performance, identify issues, make decisions, and set direction on a regular basis.
 
 **PI** - Program Increment (like... a sprint...) 
-
-
-
