@@ -1,6 +1,10 @@
 # Resolution-Independent Widget Detection on Mobile Screens
 
-Code from my [ESIPS](https://www.sydney.edu.au/engineering/study/scholarships/engineering-sydney-industry-placement-scholarship.html) thesis
+Code from my [ESIPS](https://www.sydney.edu.au/engineering/study/scholarships/engineering-sydney-industry-placement-scholarship.html) thesis. 
+
+**Aim:** Correctly identify widgets commonly present during onboarding processes on a mobile application
+
+**Motivating problem:** Simulate different users undergoing onboarding across multiple mobile devices
 
 ## Acknowledgements 
 
