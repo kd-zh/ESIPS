@@ -18,6 +18,11 @@ LTS taken from:
 * [https://doi.org/10.6084/m9.figshare.19722013.v1](https://doi.org/10.6084/m9.figshare.19722013.v1) (CC BY 4.0)
 * Any changes made to LTS were to get it working, and the code was otherwise left unchanged. Dowl and Rico were removed.
   
+Example dataset taken from DatAndroid:
+
+* [https://zenodo.org/records/4605429](https://zenodo.org/records/4605429) (CC BY 4.0)
+* Addition of widget list added
+
 ## Set up
 
 The Python version used is 3.11.7.

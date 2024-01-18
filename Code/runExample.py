@@ -1,12 +1,13 @@
 import os
-import sys
 import cv2
-import time
-import json
+import sys
 import ast
-from PIL import Image, ImageDraw, ImageFont
-from os.path import join as pjoin
+import json
+import time
+
 import pandas as pd
+from PIL import Image, ImageDraw, ImageFont
+
 sys.path.append('UIED-2.3')
 import detect_compo.ip_region_proposal as ip
 
@@ -33,72 +34,79 @@ def lts_find_text(img_input_path, expected_bounds, text):
     text            (string):   Text being matched on, or leave empty to simply perform OCR within those spaces 
 
     Returns:
-    record (dict): 
-        image (string): As above
-        text  (string): As above
-        bounds (number[]): [x1, y1, width, height]
-        detect_time:
-        detect_num:
-        rank_time:
-        match_rank:
-        match_bounds:
-        recognize_timex:
-        label_detected (bool): True is the text was detected
-        total_time:
-    'detect_time': 0.020453214645385742, 
-    'detect_num': 2, 
-    'rank_time': 5.793571472167969e-05, 
-    'match_rank': 0, 
-    'match_bounds': [400, 1263, 160, 47], 
-    'recognize_time': 0.052001953125, 
-    'label_detected': True, 
-    'total_time': 0.07251310348510742}
+        record (dict): (As from LTS)
+            image (string): As above
+            text  (string): As above
+            bounds (number[]): [x1, y1, width, height]
+            detect_time:
+            detect_num:
+            rank_time:
+            match_rank:
+            match_bounds:
+            recognize_timex:
+            label_detected (bool): True if the text was detected
+            total_time:
+            detect_time: 
+            detect_num:
+            rank_time:
+            match_rank: 
+            match_bounds (number[]): [x1, y1, width, height]
+            recognize_time:
+            label_detected:
+            total_time:
     """
     algo = ocr.OCR_ALGO.CANNY_TESSERACT
     ocr.load_ocr_module(algo)
-    img_dir = input_path_img
     
-    record = {'image': img_dir, 'text': text, 'bounds': expected_bounds}
+    record = {'image': input_path_img, 'text': text, 'bounds': expected_bounds}
     try:
-        ocr.match_label(algo, img_dir, expected_bounds, text, None, debug=False, stat=record, check_head_strategy="all",
+        ocr.match_label(algo, input_path_img, expected_bounds, text, None, debug=False, stat=record, check_head_strategy="all",
                     revert=False, rank_detected_boxes=True)
     except Exception as e:
         print(e)
     return record
 
 # Keep track of the total time
+total_start_time = time.time()
 
+ANDROID_DEVICES = [
+    "Google_Nexus_5",
+    "Google_Nexus_4",
+    "Google_Nexus_5X",
+    "Nexus_6_API_25",
+    "Nexus_6P_API_25",
+    "Nexus_S_API",
+    "Pixel_2_API_25",
+    "Pixel_2_XL_API_25",
+    "Pixel_3_API_25",
+    "Pixel_3a_API_25",
+    "Pixel_3a_XL_API_25",
+    "Pixel_API_25",
+    "Pixel_XL_API_25"
+]
+
+ANDROID_APPS = [
+    "AcsNote_8.03",
+]
 
 # Make a directory if it doesn't exist
 os.makedirs('ip', exist_ok=True)
 
-# List all sizes being tested
-# screen_sizes = [ "iPadPro.webp", 
-#                 "iPhone13Mini.PNG", 
-#                 "iPhone13Pro.webp", 
-#                 "iPhoneSE.PNG"]
+# Loop through all
+for application in ANDROID_APPS:
+    for device in ANDROID_DEVICES:
+        
+        folder = str(application)
+        input_path_img = f"../dataset/{device}/{application}/Screenshot_0.png"
+        input_path_text = f"../dataset/Google_Nexus_5/{application}/text.txt"
+        file_name = str(application) + '_' + str(device)
+        
+        print(input_path_img)
+        # Read in the given image
+        org = cv2.imread(input_path_img)
+        height, width = org.shape[:2]
 
-# Loop through folder names
-for i in range(1, 72):
-    if i > 30:
-        screen_sizes = ["iPhone13Mini.PNG",  
-                "iPhoneSE.PNG"]
-    else:
-        screen_sizes = [ "iPadPro.webp", 
-                "iPhone13Mini.PNG", 
-                "iPhone13Pro.webp", 
-                "iPhoneSE.PNG"]
-    for screen in screen_sizes:
         t1 = time.time()
-        folder = str(i)
-        folder_path = os.path.join("..",'dataset', folder)
-        input_path_img = os.path.join(folder_path, str(screen))
-        input_path_text = os.path.join(folder_path, 'text.txt')
-        print(input_path_img,input_path_text)
-        # consider keeping track of time taken
-        # consider also the # of items that need to be found
-        file_name = str(i) + '_' + str(screen.split('.')[0])
-        print("AAAAAAA", input_path_text)
         try:
             with open(input_path_text, 'r') as file:
                 find_widget_text = file.read()
@@ -108,11 +116,6 @@ for i in range(1, 72):
         except Exception as e:
             print(f"An error occurred: {e}")
             
-
-        # Read in the given image
-        org = cv2.imread(input_path_img)
-        
-        height, width = org.shape[:2]
 
         # 1) Detect widgets with UIED 2.3
         key_params = {'min-grad': 4, 'ffl-block': 5, 'min-ele-area': 500, 'merge-contained-ele': False,
@@ -126,9 +129,6 @@ for i in range(1, 72):
             dict = json.load(file)
         components = dict["compos"]
 
-        # The first item is always the size of the screenshot (TODO - create a check for this?)
-        # popped = components.pop(0) 
-
         # 2) Detect text within those regions with LTS
         list_widgets_dicts=[]
 
@@ -139,8 +139,8 @@ for i in range(1, 72):
             for item in components:
                 item['bounding_box'] = [item["column_min"], item["row_min"], item["width"],item["height"]]
                 record = lts_find_text(input_path_img, item['bounding_box'], text)
-                    
-                if record["label_detected"]:
+                # print(record)
+                if record.get("label_detected") and record["label_detected"]:
                     if item["width"] == width and item["height"] == height:
                         LTS_full.append({"bounding_box": record["match_bounds"], "text": text})
                     # The minimum x and y must be added due to the cropping
@@ -308,10 +308,10 @@ for i in range(1, 72):
 
         with open('ip/' + file_name + ".txt", "w") as file:
             file.write(str(list_widgets_result))
-        
-        data = [screen, folder, total_time]
+            
+        data = [device, application, total_time]
         # Path to the Excel file
-        excel_filename = "resultsAppleThesis.xlsx"
+        excel_filename = "results.xlsx"
         excel_path = os.path.join("..", excel_filename)
         # Check if the file exists
         if os.path.exists(excel_path):
@@ -319,12 +319,13 @@ for i in range(1, 72):
             dfExisting = pd.read_excel(excel_path)
         else:
             # Create a new DataFrame if the file does not exist
-            dfExisting = pd.DataFrame(columns=['Screen', 'Folder', 'Total Time'])
+            dfExisting = pd.DataFrame(columns=['Device', 'Application', 'Total Time'])
         # Append the new data
         dfExisting.loc[len(dfExisting)] = data
         # Write the DataFrame back to Excel
         dfExisting.to_excel(excel_path, index=False)
         print(f"Excel file updated at {excel_path}")
+        
 
         # def test_match_text(bounds):
         #     algo = ocr.OCR_ALGO.CANNY_TESSERACT
@@ -341,3 +342,6 @@ for i in range(1, 72):
         #         print(e)
         # match_bounds = record['match_bounds']
         # test_match_text(match_bounds)
+        
+total_end_time = time.time()
+print("Total time: " + str(total_end_time-total_start_time))

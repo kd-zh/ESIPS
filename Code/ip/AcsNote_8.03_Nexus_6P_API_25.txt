@@ -1,0 +1,1 @@
+[{'bounding_box': [14, 267, 1410, 159], 'text': 'Add'}, {'bounding_box': [17, 453, 1404, 1928], 'text': 'Create New Note'}, {'total_time': 8.332144737243652}]
