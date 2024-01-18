@@ -66,9 +66,7 @@ def lts_find_text(img_input_path, expected_bounds, text):
         print(e)
     return record
 
-# Keep track of the total time
-total_start_time = time.time()
-
+# List devices and applications used
 ANDROID_DEVICES = [
     "Google_Nexus_5",
     "Google_Nexus_4",
@@ -89,10 +87,13 @@ ANDROID_APPS = [
     "AcsNote_8.03",
 ]
 
+# Keep track of the total time
+total_start_time = time.time()
+
 # Make a directory if it doesn't exist
 os.makedirs('ip', exist_ok=True)
 
-# Loop through all
+# Loop through all applications and devices
 for application in ANDROID_APPS:
     for device in ANDROID_DEVICES:
         
@@ -101,11 +102,11 @@ for application in ANDROID_APPS:
         input_path_text = f"../dataset/Google_Nexus_5/{application}/text.txt"
         file_name = str(application) + '_' + str(device)
         
-        print(input_path_img)
         # Read in the given image
         org = cv2.imread(input_path_img)
         height, width = org.shape[:2]
 
+        # Keep track of time taken for each application
         t1 = time.time()
         try:
             with open(input_path_text, 'r') as file:
@@ -133,13 +134,12 @@ for application in ANDROID_APPS:
         list_widgets_dicts=[]
 
         LTS_full = []
-        # TODO - swap this around hahaha
+
         # Loop through all expected widgets and the components found, trying to find a match
         for text in find_widget_text:
             for item in components:
                 item['bounding_box'] = [item["column_min"], item["row_min"], item["width"],item["height"]]
                 record = lts_find_text(input_path_img, item['bounding_box'], text)
-                # print(record)
                 if record.get("label_detected") and record["label_detected"]:
                     if item["width"] == width and item["height"] == height:
                         LTS_full.append({"bounding_box": record["match_bounds"], "text": text})
@@ -153,7 +153,6 @@ for application in ANDROID_APPS:
                     }
                     # If we haven't already put the entry in
                     if not list_widgets_dicts:
-                        
                         list_widgets_dicts.append(widget_dict)
                     if widget_dict not in list_widgets_dicts:
                         # If we have discovered the same text, make sure we only keep the one with the smaller bounding box
@@ -170,34 +169,27 @@ for application in ANDROID_APPS:
             grouped_widgets[widget['text']].append(widget)
             
 
-        # # Identify problems with text
+        # # Uncomment this to identify problems with text
         # # Load the image
         # image1 = Image.open(input_path_img)
-
         # # Create a drawing object
         # draw1 = ImageDraw.Draw(image1)
-
         # for item in list_widgets_dicts:
         #     # Define the coordinates of the box (x1, y1, x2, y2)
         #     box = (item["bounding_box_text"][0], item["bounding_box_text"][1], item["bounding_box_text"][0]+item["bounding_box_text"][2], item["bounding_box_text"][1]+item["bounding_box_text"][3])
         #     # Draw the box
         #     draw1.rectangle(box, outline="blue", width=10)
-            
         #     box1 = (item["bounding_box"][0], item["bounding_box"][1], item["bounding_box"][0]+item["bounding_box"][2], item["bounding_box"][1]+item["bounding_box"][3])
         #     # Draw the box
         #     draw1.rectangle(box1, outline="red", width=10)
-            
         #     # Define the text and its position to fit near the top-left
         #     text = item["text"]
         #     text_x = item["bounding_box_text"][0] + 15
         #     text_y = item["bounding_box_text"][1] + 15 
-
         #     # Draw the text
         #     draw1.text((text_x, text_y), text, fill="blue")
-
         # # Save the image
         # image1.save('text/' + input_path_img) 
-
         # print(list_widgets_dicts)
         # raise ValueError()
         
@@ -248,15 +240,10 @@ for application in ANDROID_APPS:
                         # Loop through all the boxes found
                         for item in components:
                             # Is the new widget contained within the current widget?
-                            # widget is the text, item is the component
+                            # Widget is the text, item is the component
                             if contains_box(widget['bounding_box'], item['bounding_box']):
-                                # print(widget['bounding_box'], item['bounding_box'])
-                                # print("x1", widget['bounding_box_text'][0], item['bounding_box'][0], widget['bounding_box_text'][0] >= item['bounding_box'][0])
-                                # print("x2", widget['bounding_box_text'][2]+widget['bounding_box'][0], item['bounding_box'][2]+item['bounding_box'][0], widget['bounding_box_text'][2]+widget['bounding_box'][0]  <= item['bounding_box'][2]+item['bounding_box'][0])
-                                    
                                 # If so, does the widget text sit within the x coordinates of the item, and above the y coordinates of the item/widget?
-                                if widget['bounding_box_text'][0] >= item['bounding_box'][0] and widget['bounding_box_text'][2]+widget['bounding_box'][0]  <= item['bounding_box'][2]+item['bounding_box'][0] and widget['bounding_box'][3]+widget['bounding_box_text'][1] >= item['bounding_box'][3]+item['bounding_box'][1]: 
-                                    
+                                if widget['bounding_box_text'][0] >= item['bounding_box'][0] and widget['bounding_box_text'][2]+widget['bounding_box'][0]  <= item['bounding_box'][2]+item['bounding_box'][0] and widget['bounding_box'][3]+widget['bounding_box_text'][1] >= item['bounding_box'][3]+item['bounding_box'][1]:   
                                     list_contained_widgets.append(item)
                         if list_contained_widgets:
                             actual_widget = find_closest_y1(list_contained_widgets, widget['bounding_box_text'][1])
@@ -267,7 +254,6 @@ for application in ANDROID_APPS:
                             # Otherwise simply append
                             list_widgets_result.append(widget)
                             break  # Break after adding the first valid widget           
-
 
         # Loop to replace entire screen captures with only the text found
         for item in list_widgets_result:
@@ -303,16 +289,17 @@ for application in ANDROID_APPS:
         # Print out the total time taken
         total_time = time.time() - t1
         print("Total time taken: ", total_time)
-        
         list_widgets_result.append({"total_time": total_time})
 
         with open('ip/' + file_name + ".txt", "w") as file:
             file.write(str(list_widgets_result))
             
         data = [device, application, total_time]
+
         # Path to the Excel file
         excel_filename = "results.xlsx"
         excel_path = os.path.join("..", excel_filename)
+
         # Check if the file exists
         if os.path.exists(excel_path):
             # Read the existing Excel file
@@ -320,28 +307,13 @@ for application in ANDROID_APPS:
         else:
             # Create a new DataFrame if the file does not exist
             dfExisting = pd.DataFrame(columns=['Device', 'Application', 'Total Time'])
+
         # Append the new data
         dfExisting.loc[len(dfExisting)] = data
+
         # Write the DataFrame back to Excel
         dfExisting.to_excel(excel_path, index=False)
         print(f"Excel file updated at {excel_path}")
-        
-
-        # def test_match_text(bounds):
-        #     algo = ocr.OCR_ALGO.CANNY_TESSERACT
-        #     ocr.load_ocr_module(algo)
-        #     img_dir = "1.PNG"
-        #     text = "properties & saved"
-        #     expected_bounds = bounds
-        #     record = {'image': img_dir, 'text': text, 'bounds': expected_bounds}
-        #     try:
-        #         result = ocr.match_text(algo, img_dir, text, expected_bounds, None, debug=False, stat=record)
-        #         print("record: ", record)
-        #         print([str(item) for item in result])
-        #     except Exception as e:
-        #         print(e)
-        # match_bounds = record['match_bounds']
-        # test_match_text(match_bounds)
         
 total_end_time = time.time()
 print("Total time: " + str(total_end_time-total_start_time))

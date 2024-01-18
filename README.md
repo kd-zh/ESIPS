@@ -23,7 +23,9 @@ Example dataset taken from DatAndroid:
 * [https://zenodo.org/records/4605429](https://zenodo.org/records/4605429) (CC BY 4.0)
 * Addition of widget list added
 
-## Set up
+Thank you!
+
+## Set Up
 
 The Python version used is 3.11.7.
 
@@ -39,3 +41,13 @@ The required modules to be installed are:
 Tesserocr may give an error if not installed with ``pip install --no-binary :all: tesserocr``.
 
 A lower version of the above packages may also be fine.
+
+## Run Example
+
+1. Navigate to the code folder
+
+``cd code``
+
+2. Run runExample.py
+
+``python3 runExample.py``
